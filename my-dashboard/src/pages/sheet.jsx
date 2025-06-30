@@ -113,7 +113,6 @@ export default function InputSheet() {
   const handleChange = (e) => {
     const { name, value } = e.target;
 
-    // Allow empty string for clearing the field
     if (value === "") {
       setInput((prev) => ({
         ...prev,
@@ -173,7 +172,6 @@ export default function InputSheet() {
   };
 
   const getInputType = (fieldName) => {
-    // Special handling for date field
     if (fieldName === "date") {
       return "date";
     }
@@ -186,7 +184,7 @@ export default function InputSheet() {
     }
     return {
       step: "0.01",
-      min: undefined, // Allow negative numbers
+      min: undefined,
     };
   };
 
