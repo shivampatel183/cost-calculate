@@ -122,11 +122,9 @@ export default function InputSheet() {
       return;
     }
 
-    // Validate that the input is a valid decimal number
     const isValid = /^-?\d*\.?\d*$/.test(value);
     if (!isValid) return;
 
-    // Convert to number if it's a complete number, otherwise keep as string for partial input
     const numericValue = parseFloat(value);
     const finalValue =
       !isNaN(numericValue) && value !== "." && !value.endsWith(".")
@@ -145,7 +143,6 @@ export default function InputSheet() {
       return;
     }
 
-    // Ensure all values are properly converted to numbers
     const parsedInput = {};
     for (const key in input) {
       const val = input[key];
