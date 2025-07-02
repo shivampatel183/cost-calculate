@@ -171,13 +171,6 @@ export default function InputSheet() {
     }
   };
 
-  const getInputType = (fieldName) => {
-    if (fieldName === "date") {
-      return "date";
-    }
-    return "number";
-  };
-
   const getInputProps = (fieldName) => {
     if (fieldName === "date") {
       return {};
@@ -189,7 +182,7 @@ export default function InputSheet() {
   };
 
   return (
-    <div className="p-4 max-w-screen-xl mx-auto">
+    <div className="min-h-screen p-5 items-center justify-center bg-gradient-to-br from-blue-50 to-blue-100">
       <h1 className="text-2xl font-bold mb-4">Full Input Sheet</h1>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {columnMap.map((col) => (

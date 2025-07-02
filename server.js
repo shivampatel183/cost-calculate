@@ -200,6 +200,47 @@ app.post("/submit", async (req, res) => {
   }
 });
 
+app.get("/data/:userId", async (req, res) => {
+  const userId = req.params.userId;
+  const userXlsxPath = path.join(OUTPUT_DIR, `${userId}.xlsx`);
+
+  try {
+    if (!(await fs.pathExists(userXlsxPath))) {
+      return res
+        .status(404)
+        .json({ success: false, message: "File not found" });
+    }
+
+    const workbook = await XlsxPopulate.fromFileAsync(userXlsxPath);
+    const sheet = workbook.sheet("Data Entry");
+
+    const data = [];
+    let row = 6;
+    while (sheet.cell(`A${row}`).value()) {
+      const rowObj = {};
+      columnMap.forEach((key, index) => {
+        const col = colLetter(index + 1);
+        let val = sheet.cell(`${col}${row}`).value();
+        // ✅ Safe: handle RichText
+        if (val && typeof val === "object" && val.richText) {
+          val = val
+            .richText()
+            .map((frag) => frag.text())
+            .join("");
+        }
+        rowObj[key] = val;
+      });
+      data.push(rowObj);
+      row++;
+    }
+
+    res.json(data);
+  } catch (err) {
+    console.error("❌ Error reading Excel:", err);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+});
+
 app.use("/outputs", express.static(OUTPUT_DIR));
 
 app.listen(PORT, () => {

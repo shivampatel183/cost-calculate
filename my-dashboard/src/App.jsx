@@ -11,6 +11,8 @@ import Home from "./pages/home";
 import Sheet from "./pages/sheet";
 import Profile from "./pages/profile";
 import Login from "./pages/login";
+import Register from "./pages/register";
+import Data from "./pages/data";
 
 const Sidebar = ({ onLogout }) => (
   <div className="fixed top-0 left-0 h-screen w-50 bg-gray-800 text-white flex flex-col p-4 z-50">
@@ -20,6 +22,9 @@ const Sidebar = ({ onLogout }) => (
     </a>
     <a className="mb-4 hover:text-yellow-400" href="/sheet">
       Sheet
+    </a>
+    <a className="mb-4 hover:text-yellow-400" href="/data">
+      Data
     </a>
     <a className="mb-4 hover:text-yellow-400" href="/profile">
       Profile
@@ -54,21 +59,50 @@ export default function App() {
     setUser(null);
   };
 
-  if (loading) return null; // ✅ Prevent flicker
-  if (!user) return <Login setUser={setUser} />;
+  if (loading) return null;
 
   return (
     <Router>
-      <div className="flex">
-        <Sidebar onLogout={handleLogout} />
-        <div className="ml-50">
-          <Routes>
-            <Route path="/" element={<Navigate to="/home" />} />
-            <Route path="/home" element={<Home />} />
-            <Route path="/sheet" element={<Sheet />} />
-            <Route path="/profile" element={<Profile user={user} />} />
-          </Routes>
-        </div>
+      {user && <Sidebar onLogout={handleLogout} />}
+      <div className={user ? "ml-50" : ""}>
+        <Routes>
+          {/* Public routes */}
+          <Route
+            path="/login"
+            element={
+              !user ? <Login setUser={setUser} /> : <Navigate to="/home" />
+            }
+          />
+          <Route
+            path="/signup"
+            element={
+              !user ? <Register setUser={setUser} /> : <Navigate to="/home" />
+            }
+          />
+
+          {/* Protected routes */}
+          <Route
+            path="/home"
+            element={user ? <Home /> : <Navigate to="/login" />}
+          />
+          <Route
+            path="/sheet"
+            element={user ? <Sheet /> : <Navigate to="/login" />}
+          />
+          <Route
+            path="/profile"
+            element={user ? <Profile user={user} /> : <Navigate to="/login" />}
+          />
+          <Route
+            path="/data"
+            element={user ? <Data /> : <Navigate to="/data" />}
+          />
+          {/* Default route */}
+          <Route
+            path="/"
+            element={<Navigate to={user ? "/home" : "/login"} />}
+          />
+        </Routes>
       </div>
     </Router>
   );
