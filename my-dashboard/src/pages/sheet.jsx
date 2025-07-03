@@ -97,8 +97,8 @@ const columnMap = [
 
 export default function InputSheet() {
   const [input, setInput] = useState({});
-  const [pdfUrl, setPdfUrl] = useState(null);
   const [userId, setUserId] = useState(null);
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -142,6 +142,8 @@ export default function InputSheet() {
       return;
     }
 
+    setSubmitting(true);
+
     const parsedInput = {};
     for (const key in input) {
       const val = input[key];
@@ -157,17 +159,15 @@ export default function InputSheet() {
       }
     }
 
-    const fullData = {
-      ...parsedInput,
-      userId,
-    };
+    const fullData = { ...parsedInput, userId };
 
     try {
       const res = await axios.post("http://localhost:5000/submit", fullData);
-      setPdfUrl("http://localhost:5000" + res.data.pdf);
     } catch (err) {
-      alert("Error generating PDF");
+      alert("Error generating Excel");
       console.error(err);
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -180,6 +180,8 @@ export default function InputSheet() {
       min: undefined,
     };
   };
+
+  const isDisabled = submitting;
 
   return (
     <div className="min-h-screen p-5 items-center justify-center bg-gradient-to-br from-blue-50 to-blue-100">
@@ -202,23 +204,17 @@ export default function InputSheet() {
       </div>
       <button
         onClick={handleSubmit}
-        className="mt-6 px-4 py-2 bg-blue-600 text-white rounded"
+        disabled={isDisabled}
+        className={`mt-6 px-4 py-2 rounded 
+    ${
+      isDisabled
+        ? "bg-gray-400 cursor-not-allowed"
+        : "bg-blue-600 hover:bg-blue-700"
+    } 
+    text-white`}
       >
-        Submit and Generate PDF
+        {submitting ? "Submitting..." : "Submit Data"}
       </button>
-
-      {pdfUrl && (
-        <div className="mt-4">
-          <a
-            href={pdfUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-blue-600 underline"
-          >
-            Download Generated PDF
-          </a>
-        </div>
-      )}
     </div>
   );
 }

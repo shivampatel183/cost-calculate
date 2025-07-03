@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { supabase } from "../supabaseClient"; // If you need user ID
+import { supabase } from "../supabaseClient"; // ✅ if using Supabase
 
 export default function Data() {
   const [rows, setRows] = useState([]);
@@ -7,22 +7,32 @@ export default function Data() {
 
   useEffect(() => {
     const fetchExcelData = async () => {
-      // Example: get current user ID from Supabase
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      const userId = user?.id || "default";
-
       try {
+        // ✅ Get user ID from Supabase, fallback to "default"
+        const {
+          data: { user },
+          error: userError,
+        } = await supabase.auth.getUser();
+        if (userError) throw userError;
+
+        const userId = user?.id || "default";
+
         const response = await fetch(`http://localhost:5000/data/${userId}`);
+        if (!response.ok) {
+          throw new Error(`Server error: ${response.status}`);
+        }
+
         const data = await response.json();
-        if (data.success) {
-          setRows(data.rows);
+        console.log("✅ Received:", data);
+
+        // ✅ If your server returns an array directly:
+        if (Array.isArray(data)) {
+          setRows(data);
         } else {
-          console.error(data.message);
+          console.error("Unexpected response format:", data);
         }
       } catch (error) {
-        console.error("Error fetching data:", error);
+        console.error("❌ Error fetching data:", error);
       } finally {
         setLoading(false);
       }
@@ -58,7 +68,7 @@ export default function Data() {
                 <tr key={idx} className="hover:bg-gray-100">
                   {Object.keys(row).map((col) => (
                     <td key={col} className="border px-4 py-2">
-                      {row[col]?.toString()}
+                      {row[col] !== undefined ? row[col].toString() : ""}
                     </td>
                   ))}
                 </tr>

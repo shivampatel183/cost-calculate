@@ -14,7 +14,7 @@ import Login from "./pages/login";
 import Register from "./pages/register";
 import Data from "./pages/data";
 
-const Sidebar = ({ onLogout }) => (
+const Sidebar = ({ onLogout, userId }) => (
   <div className="fixed top-0 left-0 h-screen w-50 bg-gray-800 text-white flex flex-col p-4 z-50">
     <h2 className="text-2xl font-bold mb-6">Dashboard</h2>
     <a className="mb-4 hover:text-yellow-400" href="/home">
@@ -29,6 +29,15 @@ const Sidebar = ({ onLogout }) => (
     <a className="mb-4 hover:text-yellow-400" href="/profile">
       Profile
     </a>
+    <button
+      onClick={() =>
+        window.open(`http://localhost:5000/cost-pdf/${userId}`, "_blank")
+      }
+      className="mt-4 px-4 py-2 bg-green-600 text-white rounded"
+    >
+      Download Result PDF
+    </button>
+
     <button onClick={onLogout} className="mt-auto bg-red-600 px-4 py-2 rounded">
       Logout
     </button>
@@ -38,16 +47,19 @@ const Sidebar = ({ onLogout }) => (
 export default function App() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [userId, setUserId] = useState(null);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
+      setUserId(session?.user?.id ?? null);
       setLoading(false);
     });
 
     const { data: listener } = supabase.auth.onAuthStateChange(
       (_event, session) => {
         setUser(session?.user ?? null);
+        setUserId(session?.user?.id ?? null);
       }
     );
 
@@ -63,7 +75,8 @@ export default function App() {
 
   return (
     <Router>
-      {user && <Sidebar onLogout={handleLogout} />}
+      {user && <Sidebar onLogout={handleLogout} userId={userId} />}
+
       <div className={user ? "ml-50" : ""}>
         <Routes>
           {/* Public routes */}
